@@ -1,6 +1,7 @@
 use crate::*;
 use idek::Vertex;
 
+/// Draw a grid with square edges 
 pub fn draw_grid<T>(
     builder: &mut GraphicsBuilder,
     state: &Array2D<T>,
@@ -29,6 +30,32 @@ pub fn draw_grid<T>(
             let br = push(cell_width, cell_height);
 
             builder.push_indices(&[bl, tr, tl, bl, br, tr]);
+        }
+    }
+}
+
+/// Draw a grid with fuzzy edges
+pub fn draw_grid_fuzzy<T>(
+    builder: &mut GraphicsBuilder,
+    state: &Array2D<T>,
+    mut color: impl FnMut(&T) -> [f32; 3],
+    z: f32,
+) {
+    for i in 0..state.width() {
+        let i_frac = (i as f32 / state.width() as f32) * 2. - 1.;
+        for j in 0..state.height() {
+            let j_frac = (j as f32 / state.height() as f32) * 2. - 1.;
+
+            let color = color(&state[(i, j)]);
+
+            let pos = [i_frac, j_frac, z];
+
+            let i = builder.push_vertex(Vertex::new(pos, color));
+
+            if i > 0 && j > 0 {
+                let w = state.width() as u32;
+                builder.push_indices(&[i, i + 1, i + w, i + 1, i + w + 1, i + w]);
+            }
         }
     }
 }
