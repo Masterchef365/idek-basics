@@ -45,7 +45,7 @@ impl App for CubeDemo {
             tri_indices,
             tri_gb,
 
-            camera: MultiPlatformCamera::new(platform)
+            camera: MultiPlatformCamera::new(platform),
         })
     }
 
@@ -56,7 +56,9 @@ impl App for CubeDemo {
 
         Ok(vec![
             DrawCmd::new(self.tri_verts).indices(self.tri_indices),
-            DrawCmd::new(self.line_verts).indices(self.line_indices)
+            DrawCmd::new(self.line_verts)
+                .indices(self.line_indices)
+                .shader(self.line_shader),
         ])
     }
 
@@ -87,4 +89,3 @@ fn rainbow_cube() -> GraphicsBuilder {
 
     GraphicsBuilder { vertices, indices }
 }
-

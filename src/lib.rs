@@ -1,3 +1,4 @@
+mod offset_builder;
 mod graphics_builder;
 mod array2d;
 mod array3d;
