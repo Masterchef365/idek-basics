@@ -3,7 +3,7 @@ use idek::Vertex;
 
 /// Draw a grid with square edges 
 pub fn draw_grid<T>(
-    builder: &mut GraphicsBuilder,
+    builder: &mut ShapeBuilder,
     state: &Array2D<T>,
     mut color: impl FnMut(&T) -> [f32; 3],
     z: f32,
@@ -20,7 +20,10 @@ pub fn draw_grid<T>(
 
             let mut push = |dx: f32, dy: f32| {
                 let pos = [i_frac + dx, j_frac + dy, z];
-                builder.push_vertex(Vertex::new(pos, color))
+                builder.push_color(color);
+                let i = builder.push_vertex(pos);
+                builder.pop_color();
+                i
             };
 
             let tl = push(0., 0.);
@@ -36,7 +39,7 @@ pub fn draw_grid<T>(
 
 /// Draw a grid with fuzzy edges
 pub fn draw_grid_fuzzy<T>(
-    builder: &mut GraphicsBuilder,
+    builder: &mut ShapeBuilder,
     state: &Array2D<T>,
     mut color: impl FnMut(&T) -> [f32; 3],
     z: f32,
@@ -50,7 +53,9 @@ pub fn draw_grid_fuzzy<T>(
 
             let pos = [i_frac, j_frac, z];
 
-            let i = builder.push_vertex(Vertex::new(pos, color));
+            builder.push_color(color);
+            let i = builder.push_vertex(pos);
+            builder.pop_color();
 
             if i > 0 && j > 0 {
                 let w = state.width() as u32;
