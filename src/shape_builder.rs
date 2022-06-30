@@ -35,17 +35,26 @@ impl ShapeBuilder {
             .unwrap_or_else(|| Similarity3::identity())
     }
 
-    /// Prepend a transformation
+    /// Prepend a color
+    pub fn set_color(&mut self, color: [f32; 3]) {
+        if let Some(c) = self.colors.last_mut() {
+            *c = color
+        } else {
+            self.colors.push(color);
+        }
+    }
+
+    /// Prepend a color
     pub fn push_color(&mut self, color: [f32; 3]) {
         self.colors.push(color);
     }
 
-    /// Move up the transformation stack one step
+    /// Pop a color from the stack
     pub fn pop_color(&mut self) -> Option<[f32; 3]> {
         self.colors.pop()
     }
 
-    /// Get current transformation
+    /// Get current color
     pub fn get_color(&mut self) -> [f32; 3] {
         self.colors.last().copied().unwrap_or_else(|| [0.5; 3])
     }

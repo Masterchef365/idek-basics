@@ -17,12 +17,11 @@ pub fn draw_grid<T>(
             let j_frac = (j as f32 / state.height() as f32) * 2. - 1.;
 
             let color = color(&state[(i, j)]);
+            builder.set_color(color);
 
             let mut push = |dx: f32, dy: f32| {
                 let pos = [i_frac + dx, j_frac + dy, z];
-                builder.push_color(color);
                 let i = builder.push_vertex(pos);
-                builder.pop_color();
                 i
             };
 
@@ -53,9 +52,8 @@ pub fn draw_grid_fuzzy<T>(
 
             let pos = [i_frac, j_frac, z];
 
-            builder.push_color(color);
+            builder.set_color(color);
             let i = builder.push_vertex(pos);
-            builder.pop_color();
 
             if i > 0 && j > 0 {
                 let w = state.width() as u32;
