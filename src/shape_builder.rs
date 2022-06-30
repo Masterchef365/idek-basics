@@ -87,6 +87,9 @@ impl ShapeBuilder {
         self.vertices
             .extend(other.vertices.iter().copied().map(|mut v| {
                 v.pos = (tf * Point3::from(v.pos)).into();
+                if let Some(color) = self.colors.last() {
+                    v.color = *color;
+                }
                 v
             }));
         self.indices.extend(other.indices.iter().map(|i| i + base));
@@ -96,5 +99,7 @@ impl ShapeBuilder {
     pub fn clear(&mut self) {
         self.indices.clear();
         self.vertices.clear();
+        self.colors.clear();
+        self.transforms.clear();
     }
 }
