@@ -1,34 +1,34 @@
-use idek::{nalgebra::{Isometry3, Vector3}, Vertex};
+use idek::{nalgebra::{Similarity3, Point3}, Vertex};
 
 #[derive(Default, Clone, Debug)]
-pub struct GraphicsBuilder {
+pub struct OffsetBuilder {
     pub vertices: Vec<Vertex>,
     pub indices: Vec<u32>,
-    pub transforms: Vec<Isometry3<f32>>,
+    pub transforms: Vec<Similarity3<f32>>,
 }
 
-impl GraphicsBuilder {
+impl OffsetBuilder {
     pub fn new() -> Self {
         Self::default()
     }
 
     /// Prepend a transformation
-    pub fn push_tf(&mut self, tf: Isometry3<f32>) {
+    pub fn push_tf(&mut self, tf: Similarity3<f32>) {
         let base = self.get_tf();
         self.transforms.push(base * tf);
     }
 
     /// Move up the transformation stack one step
-    pub fn pop_tf(&mut self) -> Option<Isometry3<f32>> {
+    pub fn pop_tf(&mut self) -> Option<Similarity3<f32>> {
         self.transforms.pop()
     }
 
     /// Get current transformation
-    pub fn get_tf(&mut self) -> Isometry3<f32> {
+    pub fn get_tf(&mut self) -> Similarity3<f32> {
         self.transforms
             .last()
             .copied()
-            .unwrap_or_else(|| Isometry3::identity())
+            .unwrap_or_else(|| Similarity3::identity())
     }
 
     /// Push a Vertex and return it's index
@@ -39,7 +39,7 @@ impl GraphicsBuilder {
             .try_into()
             .expect("Vertex limit exceeded");
 
-        let pos = self.get_tf() * Vector3::from(v.pos);
+        let pos = self.get_tf() * Point3::from(v.pos);
         v.pos = pos.into();
 
         self.vertices.push(v);
@@ -49,6 +49,17 @@ impl GraphicsBuilder {
     /// Push an index
     pub fn push_indices(&mut self, idx: &[u32]) {
         self.indices.extend_from_slice(idx);
+    }
+
+    /// Append another graphics builder onto this one, transforming the shapes within
+    pub fn append(&mut self, other: &Self) {
+        let base = self.vertices.len() as u32;
+        let tf = self.get_tf();
+        self.vertices.extend(other.vertices.iter().copied().map(|mut v| {
+            v.pos = (tf * Point3::from(v.pos)).into();
+            v
+        }));
+        self.indices.extend(other.indices.iter().map(|i| i + base));
     }
 
     /// Erase all content
